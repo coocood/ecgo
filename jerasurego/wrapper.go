@@ -106,18 +106,17 @@ func CauchyDecode(chunks [][]byte, meta *Metadata) (data_block []byte, err error
 	}
 	var chunk_length int = -1
 	row_k_ones := C.int(1)
-	missing := make([]int, n)
+	missing := make([]int32, n)
 	var j int = 0
 	for i := range chunks {
 		if chunks[i] == nil || len(chunks[i]) == 0 {
-			missing[j] = i
+			missing[j] = int32(i)
 			j++
 		} else if chunk_length == -1 {
 			chunk_length = len(chunks[i])
 		}
 	}
 	missing[j] = -1
-	j++
 
 	for i := range chunks {
 		if chunks[i] == nil || len(chunks[i]) == 0 {
@@ -125,7 +124,7 @@ func CauchyDecode(chunks [][]byte, meta *Metadata) (data_block []byte, err error
 		}
 	}
 
-	erasures := (*C.int)(unsafe.Pointer(&missing[:j][0]))
+	erasures := (*C.int)(unsafe.Pointer(&missing[0]))
 	pointers := make([]*byte, n)
 	for i := range chunks {
 		pointers[i] = &chunks[i][0]
